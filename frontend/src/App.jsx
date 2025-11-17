@@ -6,7 +6,9 @@ import StudentRegister from './components/authentications/StudentRegister';
 import DonorRegister from './components/authentications/DonorRegister';
 import AdminDashboard from './components/dashboards/AdminDashboard';
 import ProtectedRoute from './ProtectedRoute';
-import Admin from './components/admin/Admin';
+import AcceptStudent from './components/admin/AcceptStudent';
+import ViewReports from './components/admin/ViewReports';
+import ViewDonors from './components/admin/ViewDonors';
 
 function decodeToken(token) {
   try {
@@ -28,14 +30,14 @@ function App() {
         <Route path="/student-register" element={<StudentRegister />} />
         <Route path="/donor-register" element={<DonorRegister />} />
         <Route path="/home" element={<Home />} />
-            <Route path="admin-dashboard" element={<AdminDashboard />} />
-
 
         {/* Admin protected routes */}
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-          <Route path="/admin" element={<Admin />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />}>
+            <Route index element={<AcceptStudent />} />
+            <Route path="accept-student" element={<AcceptStudent />} />
+            <Route path="view-reports" element={<ViewReports />} />
+            <Route path="view-donors" element={<ViewDonors />} />
           </Route>
         </Route>
 

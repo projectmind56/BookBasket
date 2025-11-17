@@ -8,7 +8,7 @@ function DonorRegister() {
     password: "",
     confirmPassword: "",
     phone: "",
-    role: "donor"
+    role: "donor",
   });
 
   const [loading, setLoading] = useState(false);
@@ -64,6 +64,7 @@ function DonorRegister() {
         password: "",
         confirmPassword: "",
         phone: "",
+        role: "donor",
       });
     } catch (err) {
       toast.error(err.message);

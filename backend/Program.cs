@@ -57,13 +57,13 @@ builder.Services.AddCors(options =>
 });
 
 const string connectionString =
-    "Data Source=DHARANESH\\SQLEXPRESS;TrustServerCertificate=True;Integrated Security=True;Initial Catalog=BookBasket;";
+    "Data Source=PTPLL512;TrustServerCertificate=True;Integrated Security=True;Initial Catalog=BookBasket;";
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<StudentService>();
-// builder.Services.AddScoped<DonorService>();
+builder.Services.AddScoped<AdminService>();
 
 
 var app = builder.Build();

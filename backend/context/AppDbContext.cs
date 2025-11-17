@@ -13,5 +13,16 @@ namespace backend.Context
         }
         public DbSet<Users> Users { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Configure one-to-one relationship
+            modelBuilder.Entity<Users>()
+                .HasOne(u => u.UserProfile)
+                .WithOne(p => p.User)
+                .HasForeignKey<UserProfile>(p => p.UserId);
+        }
     }
 }
