@@ -13,6 +13,8 @@ namespace backend.Context
         }
         public DbSet<Users> Users { get; set; }
         public DbSet<UserProfile> UserProfile { get; set; }
+        public DbSet<Books> Books { get; set; }
+        public DbSet<EBooks> EBooks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

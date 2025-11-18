@@ -9,6 +9,14 @@ import ProtectedRoute from './ProtectedRoute';
 import AcceptStudent from './components/admin/AcceptStudent';
 import ViewReports from './components/admin/ViewReports';
 import ViewDonors from './components/admin/ViewDonors';
+import DonorDahsboard from './components/dashboards/DonorDahsboard';
+import AddBooks from './components/donor/AddBooks';
+import AddEBooks from './components/donor/AddEBooks';
+import ViewOrders from './components/donor/ViewOrders';
+import ViewDonorBooks from './components/donor/ViewDonorBooks';
+import ViewDonorEbooks from './components/donor/ViewDonorEbooks';
+import StudentDashboard from './components/dashboards/StudentDashboard';
+import ViewBooks from './components/student/ViewBooks';
 
 function decodeToken(token) {
   try {
@@ -26,7 +34,7 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Login />} />
-        <Route path="/login" element={< Login/>} />
+        <Route path="/login" element={< Login />} />
         <Route path="/student-register" element={<StudentRegister />} />
         <Route path="/donor-register" element={<DonorRegister />} />
         <Route path="/home" element={<Home />} />
@@ -41,15 +49,25 @@ function App() {
           </Route>
         </Route>
 
-        {/* Staff protected routes */}
-        {/* <Route element={<ProtectedRoute allowedRoles={['staff']} />}>
-          <Route path="/staff" element={<Staff />}>
-            <Route index element={<AcceptHallAllocation />} />
-            <Route path="accept-hall-arrangement" element={<AcceptHallAllocation />} />
-            <Route path="accept-hall-re-arrangement" element={<AcceptHallReAllocation />} />
-            <Route path="add-time-table" element={<AddTimeTable />} />
+        {/* Donor protected routes */}
+        <Route element={<ProtectedRoute allowedRoles={['donor']} />}>
+          <Route path="/donor-dashboard" element={<DonorDahsboard />}>
+            <Route index element={<AddBooks />} />
+            <Route path="add-books" element={<AddBooks />} />
+            <Route path="add-e-books" element={<AddEBooks />} />
+            <Route path="view-orders" element={<ViewOrders />} />
+            <Route path="view-books" element={<ViewDonorBooks />} />
+            <Route path="view-e-books" element={<ViewDonorEbooks />} />
           </Route>
-        </Route> */}
+        </Route>
+
+        {/* Student protected routes */}
+        <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+          <Route path="/student-dashboard" element={<StudentDashboard />}>
+            <Route index element={<ViewBooks />} />
+            <Route path="view-books" element={<ViewBooks />} />
+          </Route>
+        </Route>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />

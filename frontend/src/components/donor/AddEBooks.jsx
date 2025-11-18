@@ -3,16 +3,15 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function AddBooks() {
-  const [book, setBook] = useState({
+function AddEBooks() {
+  const [ebook, setEbook] = useState({
     title: "",
     author: "",
     isbn: "",
     publisher: "",
     category: "",
-    quantity: 1,
     description: "",
-    cover: null,
+    EBookFile: null, // ✅ Must match backend DTO
   });
 
   const categories = ["Fiction", "Non-Fiction", "Science", "History", "Biography", "Technology"];
@@ -21,8 +20,8 @@ function AddBooks() {
     const token = localStorage.getItem("token");
     if (!token) return null;
     try {
-      const decoded = jwtDecode(token);      
-      return decoded.nameid; // Adjust if token uses a different claim
+      const decoded = jwtDecode(token);
+      return decoded.nameid; // Adjust this according to your token structure
     } catch (err) {
       console.error("Failed to decode token:", err);
       return null;
@@ -31,10 +30,16 @@ function AddBooks() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "cover") {
-      setBook({ ...book, cover: files[0] });
+
+    if (name === "EBookFile") {
+      if (files[0] && files[0].size > 20 * 1024 * 1024) { // 20 MB limit
+        toast.error("File size must be less than 20 MB");
+        e.target.value = null;
+        return;
+      }
+      setEbook({ ...ebook, EBookFile: files[0] });
     } else {
-      setBook({ ...book, [name]: value });
+      setEbook({ ...ebook, [name]: value });
     }
   };
 
@@ -47,41 +52,54 @@ function AddBooks() {
       return;
     }
 
+    if (!ebook.EBookFile) {
+      toast.warn("Please upload the e-book file.");
+      return;
+    }
+
     try {
       const formData = new FormData();
+      formData.append("Title", ebook.title);
+      formData.append("Author", ebook.author);
+      formData.append("ISBN", ebook.isbn);
+      formData.append("Publisher", ebook.publisher);
+      formData.append("Category", ebook.category);
+      formData.append("Description", ebook.description);
       formData.append("DonorId", donorId);
-      for (let key in book) {
-        formData.append(key, book[key]);
-      }
+      formData.append("EBookFile", ebook.EBookFile); // Must match DTO
 
-      const response = await fetch("http://localhost:5275/api/Donor/addBook", {
+      const res = await fetch("http://localhost:5275/api/Donor/addEBook", {
         method: "POST",
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Failed to add book");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.title || "Failed to add e-book");
+      }
 
-      toast.success("Book added successfully!");
-
-      // Reset form
-      setBook({
+      toast.success("E-Book added successfully!");
+      setEbook({
         title: "",
         author: "",
         isbn: "",
         publisher: "",
         category: "",
-        quantity: 1,
         description: "",
-        cover: null,
+        EBookFile: null,
       });
-    } catch (error) {
-      toast.error(error.message);
+
+      // Clear the file input manually
+      document.getElementById("ebookFileInput").value = null;
+
+    } catch (err) {
+      toast.error(err.message);
     }
   };
 
   return (
-    <div className="container">
-      <h2 className="mb-4 text-primary">Add New Book</h2>
+    <div className="container mt-4">
+      <h2 className="mb-4 text-primary">Add New E-Book</h2>
 
       <form onSubmit={handleSubmit}>
         {/* Row 1: Title | Author | ISBN */}
@@ -92,7 +110,7 @@ function AddBooks() {
               type="text"
               name="title"
               className="form-control"
-              value={book.title}
+              value={ebook.title}
               onChange={handleChange}
               required
             />
@@ -103,7 +121,7 @@ function AddBooks() {
               type="text"
               name="author"
               className="form-control"
-              value={book.author}
+              value={ebook.author}
               onChange={handleChange}
               required
             />
@@ -114,87 +132,81 @@ function AddBooks() {
               type="text"
               name="isbn"
               className="form-control"
-              value={book.isbn}
+              value={ebook.isbn}
               onChange={handleChange}
               required
             />
           </div>
         </div>
 
-        {/* Row 2: Publisher | Category | Quantity */}
+        {/* Row 2: Publisher | Category */}
         <div className="row mb-3">
-          <div className="col-md-4">
+          <div className="col-md-6">
             <label className="form-label">Publisher</label>
             <input
               type="text"
               name="publisher"
               className="form-control"
-              value={book.publisher}
+              value={ebook.publisher}
               onChange={handleChange}
             />
           </div>
-          <div className="col-md-4">
+          <div className="col-md-6">
             <label className="form-label">Category *</label>
             <select
               name="category"
               className="form-select"
-              value={book.category}
+              value={ebook.category}
               onChange={handleChange}
               required
             >
               <option value="">Select Category</option>
               {categories.map((cat, i) => (
-                <option key={i} value={cat}>{cat}</option>
+                <option key={i} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
-          <div className="col-md-4">
-            <label className="form-label">Quantity *</label>
-            <input
-              type="number"
-              name="quantity"
-              className="form-control"
-              value={book.quantity}
-              min={1}
-              onChange={handleChange}
-              required
-            />
-          </div>
         </div>
 
-        {/* Row 3: Description */}
+        {/* Description */}
         <div className="mb-3">
           <label className="form-label">Description</label>
           <textarea
             name="description"
             className="form-control"
-            value={book.description}
+            value={ebook.description}
             onChange={handleChange}
             rows={3}
           ></textarea>
         </div>
 
-        {/* Row 4: Cover Image */}
+        {/* E-Book File */}
         <div className="mb-3">
-          <label className="form-label">Cover Image</label>
+          <label className="form-label">E-Book File *</label>
           <input
             type="file"
-            name="cover"
+            id="ebookFileInput"
+            name="EBookFile" // ✅ Must match backend DTO
             className="form-control"
-            accept="image/*"
+            accept=".pdf,.epub,.mobi"
             onChange={handleChange}
+            required
           />
+          <small className="text-muted">
+            Max size: 20 MB. Allowed formats: PDF, EPUB, MOBI
+          </small>
         </div>
 
         <button type="submit" className="btn btn-primary">
-          Add Book
+          Add E-Book
         </button>
       </form>
 
-      {/* Toast Container */}
       <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }
 
-export default AddBooks;
+export default AddEBooks;

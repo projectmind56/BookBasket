@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 
 function AcceptStudent() {
   const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true); // main loader
-  const [actionLoading, setActionLoading] = useState(null); // loader for accept/reject buttons
+  const [filtered, setFiltered] = useState([]); // filtered list
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
 
   // Fetch students
   const fetchStudents = async () => {
@@ -13,6 +15,7 @@ function AcceptStudent() {
       if (!res.ok) throw new Error("Failed to fetch students");
       const data = await res.json();
       setStudents(data);
+      setFiltered(data); // set filtered initially
     } catch (err) {
       console.error(err);
       alert("Failed to load students.");
@@ -24,7 +27,23 @@ function AcceptStudent() {
     fetchStudents();
   }, []);
 
-  // Handle Accept or Reject
+  // Live Search Filter
+  useEffect(() => {
+    const searchLower = search.toLowerCase();
+
+    const result = students.filter((s) =>
+      s.userName.toLowerCase().includes(searchLower) ||
+      s.email.toLowerCase().includes(searchLower) ||
+      s.collegeName?.toLowerCase().includes(searchLower) ||
+      s.universityName?.toLowerCase().includes(searchLower) ||
+      s.studentRollNo?.toString().includes(searchLower) ||
+      s.aadharNo?.toString().includes(searchLower)
+    );
+
+    setFiltered(result);
+  }, [search, students]);
+
+  // Accept / Reject
   const updateStatus = async (userId, status) => {
     setActionLoading(userId);
 
@@ -62,13 +81,22 @@ function AcceptStudent() {
     <div>
       <h2 className="mb-4 text-primary">Student Requests</h2>
 
-      <div className="table-responsive">
+      {/* 🔍 Search Box */}
+      <input
+        type="text"
+        className="form-control mb-3"
+        placeholder="Search by name, email, college, university, roll no, aadhar..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <div className="table-responsive" style={{ maxHeight: "450px", overflowY: "auto" }}>
         <table className="table table-bordered table-hover">
-          <thead className="table-dark">
+          <thead className="table-dark" style={{ position: "sticky", top: 0, zIndex: 2 }}>
             <tr>
               <th>#</th>
               <th>Name</th>
-              <th>Phono</th>
+              <th>Phone</th>
               <th>Email</th>
               <th>College</th>
               <th>University</th>
@@ -80,72 +108,77 @@ function AcceptStudent() {
           </thead>
 
           <tbody>
-            {students.map((s, index) => (
-              <tr key={s.userId}>
-                <td>{index + 1}</td>
-                <td>{s.userName}</td>
-                <td>{s.phone}</td>
-                <td>{s.email}</td>
-                <td>{s?.collegeName}</td>
-                <td>{s?.universityName}</td>
-                <td>{s?.studentRollNo}</td>
-                <td>{s?.aadharNo}</td>
-
-                <td>
-                  {s.status === "accepted" && (
-                    <span className="badge bg-success">Accepted</span>
-                  )}
-                  {s.status === "rejected" && (
-                    <span className="badge bg-danger">Rejected</span>
-                  )}
-                  {s.status === "pending" && (
-                    <span className="badge bg-warning text-dark">Pending</span>
-                  )}
-                </td>
-
-                <td>
-                  {s.status === "accepted" && (
-                    <button className="btn btn-success btn-sm" disabled>
-                      Accepted
-                    </button>
-                  )}
-
-                  {s.status === "rejected" && (
-                    <button className="btn btn-danger btn-sm" disabled>
-                      Rejected
-                    </button>
-                  )}
-
-                  {s.status === "pending" && (
-                    <div className="d-flex gap-2">
-                      <button
-                        className="btn btn-outline-success btn-sm"
-                        disabled={actionLoading === s.userId}
-                        onClick={() => updateStatus(s.userId, "accepted")}
-                      >
-                        {actionLoading === s.userId ? (
-                          <span className="spinner-border spinner-border-sm"></span>
-                        ) : (
-                          "Accept"
-                        )}
-                      </button>
-
-                      <button
-                        className="btn btn-outline-danger btn-sm"
-                        disabled={actionLoading === s.userId}
-                        onClick={() => updateStatus(s.userId, "rejected")}
-                      >
-                        {actionLoading === s.userId ? (
-                          <span className="spinner-border spinner-border-sm"></span>
-                        ) : (
-                          "Reject"
-                        )}
-                      </button>
-                    </div>
-                  )}
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan="10" className="text-center text-muted">
+                  No matching students found
                 </td>
               </tr>
-            ))}
+            ) : (
+              filtered.map((s, index) => (
+                <tr key={s.userId}>
+                  <td>{index + 1}</td>
+                  <td>{s.userName}</td>
+                  <td>{s.phone}</td>
+                  <td>{s.email}</td>
+                  <td>{s?.collegeName}</td>
+                  <td>{s?.universityName}</td>
+                  <td>{s?.studentRollNo}</td>
+                  <td>{s?.aadharNo}</td>
+
+                  <td>
+                    {s.status === "accepted" && (
+                      <span className="badge bg-success">Accepted</span>
+                    )}
+                    {s.status === "rejected" && (
+                      <span className="badge bg-danger">Rejected</span>
+                    )}
+                    {s.status === "pending" && (
+                      <span className="badge bg-warning text-dark">Pending</span>
+                    )}
+                  </td>
+
+                  <td>
+                    {s.status === "pending" ? (
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-outline-success btn-sm"
+                          disabled={actionLoading === s.userId}
+                          onClick={() => updateStatus(s.userId, "accepted")}
+                        >
+                          {actionLoading === s.userId ? (
+                            <span className="spinner-border spinner-border-sm"></span>
+                          ) : (
+                            "Accept"
+                          )}
+                        </button>
+
+                        <button
+                          className="btn btn-outline-danger btn-sm"
+                          disabled={actionLoading === s.userId}
+                          onClick={() => updateStatus(s.userId, "rejected")}
+                        >
+                          {actionLoading === s.userId ? (
+                            <span className="spinner-border spinner-border-sm"></span>
+                          ) : (
+                            "Reject"
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className={`btn btn-sm ${
+                          s.status === "accepted" ? "btn-success" : "btn-danger"
+                        }`}
+                        disabled
+                      >
+                        {s.status.charAt(0).toUpperCase() + s.status.slice(1)}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

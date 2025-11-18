@@ -1,0 +1,90 @@
+/* ⭐ Book Cards */
+.book-card {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: 0.25s;
+  cursor: pointer;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.book-img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+}
+
+.book-title {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-author {
+  font-size: 11px;
+  color: #777;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-desc {
+  font-size: 12px;
+  height: 28px; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ⭐ Popup Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+.modal-container {
+  background: white;
+  width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: 8px;
+  padding: 20px;
+  animation: popupShow 0.3s ease-out;
+}
+
+@keyframes popupShow {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+.modal-title {
+  color: #007bff;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.modal-description {
+  white-space: pre-wrap;
+}

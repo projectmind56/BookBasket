@@ -94,6 +94,14 @@ namespace backend.Services
             return user;
         }
 
+        public List<Books> GetAvailableBooks()
+        {
+            return _db.Books
+                           .Where(b => b.Quantity > 0)
+                           .ToList();
+        }
+
+
         private async Task SendRegistrationEmailAsync(Users user)
         {
             string subject = "Welcome to BookBasket!";

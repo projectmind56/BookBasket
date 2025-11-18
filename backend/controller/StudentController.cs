@@ -81,5 +81,12 @@ namespace backend.Controllers
                 token
             });
         }
+
+        [HttpGet("getAvailableBooks")]
+        public IActionResult GetAvailableBooks()
+        {
+            var books = _service.GetAvailableBooks();
+            return Ok(books);
+        }
     }
 }
