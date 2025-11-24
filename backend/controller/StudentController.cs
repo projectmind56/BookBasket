@@ -88,5 +88,46 @@ namespace backend.Controllers
             var books = _service.GetAvailableBooks();
             return Ok(books);
         }
+
+        [HttpGet("getAvailableEBooks")]
+        public IActionResult GetAvailableEBooks()
+        {
+            var ebooks = _service.GetAvailableEBooks();
+            return Ok(ebooks);
+        }
+
+        [HttpGet("getMyOrders")]
+        public IActionResult GetMyOrders()
+        {
+            var orders = _service.GetMyOrders();
+            return Ok(orders);
+        }
+
+        [HttpPost("orderBook")]
+        public async Task<IActionResult> OrderBook([FromBody] BookOrderDto dto)
+        {
+            if (!ModelState.IsValid || dto == null)
+                return BadRequest("Invalid request data.");
+
+            bool result = await _service.PlaceOrderAsync(dto);
+
+            if (!result)
+                return StatusCode(500, "Error while placing order.");
+
+            return Ok(new { message = "Order placed successfully!" });
+        }
+        [HttpPost("downloadEBook")]
+        public async Task<IActionResult> DownloadEBook([FromBody] BookOrderDto dto)
+        {
+            if (!ModelState.IsValid || dto == null)
+                return BadRequest("Invalid request data.");
+
+            bool result = await _service.DownloadEBook(dto);
+
+            if (!result)
+                return StatusCode(500, "Error while placing order.");
+
+            return Ok(new { message = "Order placed successfully!" });
+        }
     }
 }

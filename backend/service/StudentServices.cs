@@ -101,6 +101,115 @@ namespace backend.Services
                            .ToList();
         }
 
+        public List<EBooks> GetAvailableEBooks()
+        {
+            return _db.EBooks.ToList();
+        }
+
+public List<OrderDetailsDTO> GetMyOrders()
+{
+    var orders = (from o in _db.BookOrders
+                  join u in _db.Users on o.User_Id equals u.UserId
+                  join up in _db.UserProfile on u.UserId equals up.UserId into upLeft
+                  from up in upLeft.DefaultIfEmpty()
+                  join d in _db.Users on o.Donor_Id equals d.UserId
+                  join b in _db.Books on o.Book_Id equals b.Id
+                  where o.Category != "E-Book"
+                  select new OrderDetailsDTO
+                  {
+                      OrderId = o.Id,
+                      Category = o.Category,
+                      Quantity = o.Quantity,
+                      OrderDate = o.OrderDate,
+
+                      UserId = u.UserId,
+                      UserName = u.UserName,
+                      Email = u.Email,
+                      Phone = u.Phone,
+                      StudentRollNo = up != null ? up.StudentRollNo : null,
+                      CollegeName = up != null ? up.CollegeName : null,
+                      UniversityName = up != null ? up.UniversityName : null,
+
+                      DonorId = d.UserId,
+                      DonorName = d.UserName,
+                      DonorEmail = d.Email,
+
+                      BookId = b.Id,
+                      BookTitle = b.Title,
+                      BookAuthor = b.Author,
+                      BookISBN = b.ISBN,
+                      BookPublisher = b.Publisher
+                  }).ToList();
+
+    return orders;
+}
+
+        public async Task<bool> PlaceOrderAsync(BookOrderDto dto)
+        {
+            // 1️⃣ Get book
+            var book = await _db.Books.FirstOrDefaultAsync(b => b.Id == dto.Book_Id);
+            if (book == null)
+                throw new Exception("Book not found");
+
+            // 2️⃣ Validate stock
+            if (book.Quantity < dto.Quantity)
+                throw new Exception("Not enough stock available");
+
+            // 3️⃣ Reduce available quantity
+            book.Quantity -= dto.Quantity;
+
+            // 4️⃣ Increase sold quantity
+            book.SoldQuantity += dto.Quantity;
+
+            // 5️⃣ Create order record
+            var order = new BookOrder
+            {
+                User_Id = dto.User_Id,
+                Donor_Id = dto.Donor_Id,
+                Book_Id = dto.Book_Id,
+                Category = dto.Category,
+                Isbn_No = dto.Isbn_No,
+                Quantity = dto.Quantity,
+                OrderDate = DateTime.Now
+            };
+
+            _db.BookOrders.Add(order);
+
+            // 6️⃣ Save both Updates
+            await _db.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DownloadEBook(BookOrderDto dto)
+        {
+            // 1️⃣ Get book
+            var book = await _db.EBooks.FirstOrDefaultAsync(b => b.Id == dto.Book_Id);
+            if (book == null)
+                throw new Exception("Book not found");
+
+            // 4️⃣ Increase download quantity
+            book.DownloadCount += dto.Quantity;
+
+            // 5️⃣ Create order record
+            var order = new BookOrder
+            {
+                User_Id = dto.User_Id,
+                Donor_Id = dto.Donor_Id,
+                Book_Id = dto.Book_Id,
+                Category = dto.Category,
+                Isbn_No = dto.Isbn_No,
+                Quantity = dto.Quantity,
+                OrderDate = DateTime.Now
+            };
+
+            _db.BookOrders.Add(order);
+
+            // 6️⃣ Save both Updates
+            await _db.SaveChangesAsync();
+
+            return true;
+        }
 
         private async Task SendRegistrationEmailAsync(Users user)
         {

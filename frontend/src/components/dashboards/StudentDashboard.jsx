@@ -35,6 +35,32 @@ function StudentDashboard() {
                 </NavLink>
               </li>
 
+              <li className="nav-item">
+                <NavLink
+                  className={({ isActive }) =>
+                    "nav-link text-white " +
+                    (isActive ? "fw-bold text-primary rounded px-2" : "")
+                  }
+                  to="view-e-books"
+                  end
+                >
+                  View E-Books
+                </NavLink>
+              </li>
+
+                            <li className="nav-item">
+                <NavLink
+                  className={({ isActive }) =>
+                    "nav-link text-white " +
+                    (isActive ? "fw-bold text-primary rounded px-2" : "")
+                  }
+                  to="my-orders"
+                  end
+                >
+                  My Orders
+                </NavLink>
+              </li>
+
             </ul>
           </div>
 

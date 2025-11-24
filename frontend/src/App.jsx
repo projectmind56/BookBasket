@@ -17,6 +17,8 @@ import ViewDonorBooks from './components/donor/ViewDonorBooks';
 import ViewDonorEbooks from './components/donor/ViewDonorEbooks';
 import StudentDashboard from './components/dashboards/StudentDashboard';
 import ViewBooks from './components/student/ViewBooks';
+import ViewEBooks from './components/student/ViewEBooks';
+import MyOrders from './components/student/MyOrders';
 
 function decodeToken(token) {
   try {
@@ -66,6 +68,8 @@ function App() {
           <Route path="/student-dashboard" element={<StudentDashboard />}>
             <Route index element={<ViewBooks />} />
             <Route path="view-books" element={<ViewBooks />} />
+            <Route path="view-e-books" element={<ViewEBooks />} />
+            <Route path="my-orders" element={<MyOrders />} />
           </Route>
         </Route>
 
