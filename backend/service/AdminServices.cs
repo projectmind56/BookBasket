@@ -71,7 +71,7 @@ namespace backend.Services
             return true;
         }
 
-         public async Task<List<DonorDto>> GetAllDonorsAsync()
+        public async Task<List<DonorDto>> GetAllDonorsAsync()
         {
             return await _db.Users
                 .Where(u => u.Role == "donor")
@@ -85,6 +85,43 @@ namespace backend.Services
                     Role = u.Role,
                 })
                 .ToListAsync();
+        }
+
+        public List<OrderDetailsDTO> GetAllOrders()
+        {
+            var orders = (from o in _db.BookOrders
+                          join u in _db.Users on o.User_Id equals u.UserId
+                          join up in _db.UserProfile on u.UserId equals up.UserId into upLeft
+                          from up in upLeft.DefaultIfEmpty()
+                          join d in _db.Users on o.Donor_Id equals d.UserId
+                          join b in _db.Books on o.Book_Id equals b.Id
+                          select new OrderDetailsDTO
+                          {
+                              OrderId = o.Id,
+                              Category = o.Category,
+                              Quantity = o.Quantity,
+                              OrderDate = o.OrderDate,
+
+                              UserId = u.UserId,
+                              UserName = u.UserName,
+                              Email = u.Email,
+                              Phone = u.Phone,
+                              StudentRollNo = up != null ? up.StudentRollNo : null,
+                              CollegeName = up != null ? up.CollegeName : null,
+                              UniversityName = up != null ? up.UniversityName : null,
+
+                              DonorId = d.UserId,
+                              DonorName = d.UserName,
+                              DonorEmail = d.Email,
+
+                              BookId = b.Id,
+                              BookTitle = b.Title,
+                              BookAuthor = b.Author,
+                              BookISBN = b.ISBN,
+                              BookPublisher = b.Publisher
+                          }).ToList();
+
+            return orders;
         }
 
         // 4. Send Email Method

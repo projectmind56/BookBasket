@@ -132,5 +132,12 @@ namespace backend.Controllers
             _donorService.UpdateBook(book);
             return Ok(new { message = "Book updated successfully!" });
         }
+
+        [HttpGet("getAllOrders/{id}")]
+        public IActionResult GetAllOrders(int id)
+        {
+            var orders = _donorService.GetAllOrders(id);
+            return Ok(orders);
+        }
     }
 }

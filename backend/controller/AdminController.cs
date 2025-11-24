@@ -53,5 +53,12 @@ namespace backend.Controllers
             var donors = await _service.GetAllDonorsAsync();
             return Ok(donors);
         }
+
+                [HttpGet("getAllOrders")]
+        public IActionResult GetAllOrders()
+        {
+            var orders = _service.GetAllOrders();
+            return Ok(orders);
+        }
     }
 }
